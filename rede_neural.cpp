@@ -2,10 +2,12 @@
 #include <stdlib.h>
 #include <math.h>
 
+#define SIZE 536
+
 typedef struct neuronio {
-    double entrada[536];
+    double entrada[SIZE];
     double peso_b;
-    double pesos_w[536];
+    double pesos_w[SIZE];
     double saida;
     struct neuronio *prox;
 }Neuronio;
@@ -18,13 +20,16 @@ typedef struct header {
 
 Header *inicializaHeader();
 double randPeso();
-Neuronio *criaNeuronio(double entrada[536]);
+Neuronio *criaNeuronio(double entrada[SIZE]);
 void pesosW(Neuronio *novoNeuronio);
-void entradaNeuronio(Neuronio* neuronio, double entrada[536]);
+void entradaNeuronio(Neuronio* neuronio, double entrada[SIZE]);
 double funcaoAtivacao(Neuronio* neuronio);
-void addNeuronioCamadaOculta(Header *header, double entrada[536]);
-void camadaOculta(Header *header, int qntd_neuronio_oculta, double entrada[536]);
+void addNeuronioCamadaOculta(Header *header, double entrada[SIZE]);
+void camadaOculta(Header *header, int qntd_neuronio_oculta, double entrada[SIZE]);
 double *calculaSaida(Header *header);
+double tanH(double *t);
+double *propagacaoCamadaEntrada(double *entrada, double *pesos);
+double *propagacaoCamadaN(double *u);
 
 int main (int argc, char *argv[]) {
 	char *qntd_terminal = argv[1];
@@ -47,7 +52,7 @@ Header *inicializaHeader() {
 	return header;
 }
 
-Neuronio *criaNeuronio(double entrada[536]) {
+Neuronio *criaNeuronio(double entrada[SIZE]) {
     Neuronio *novoNeuronio = (Neuronio*) malloc(sizeof(Neuronio));
 
     novoNeuronio->peso_b = randPeso();
@@ -65,7 +70,7 @@ double funcaoAtivacao(Neuronio *neuronio) {
     double fun_n, n = 0;
     double e = 2.718281828459045235360287;
 
-    for(int i = 0; i < 536; i++) {
+    for(int i = 0; i < SIZE; i++) {
         n += neuronio->entrada[i]; 
     }
 
@@ -91,7 +96,7 @@ void pesosW(Neuronio *novoNeuronio) {
 }
 
 void entradaNeuronio(Neuronio* neuronio, double entrada[536]) {
-    for(int i = 0; i < 536; i++) {
+    for(int i = 0; i < SIZE; i++) {
         neuronio->entrada[i] = (entrada[i] * neuronio->pesos_w[i])
             + neuronio->peso_b;
     }
@@ -116,7 +121,7 @@ void camadaOculta(Header *header, int qntd_neuronio_oculta, double entrada[536])
     }
 }
 
-int camadaSaida(Header *header, double entrada[536]) {
+int camadaSaida(Header *header, double entrada[SIZE]) {
      
 }
 
@@ -136,4 +141,36 @@ double *calculaSaida(Header *header) {
 void criaCamadaSaida(Header *header) {
     Neuronio *neuronioSaida = criaNeuronio(calculaSaida(header)); 
     neuronioSaida->saida = funcaoAtivacao(neuronioSaida);
+}
+
+double tanH(double *t){
+    double *tn = *t * (-1);
+
+    double tang = (pow(2,718, t) - pow(2,718, tn)) / (pow(2,718, t) + pow(2,718, tn));
+
+    return tang; 
+}
+
+double *propagacaoCamadaEntrada(double *entrada, double *pesos){
+    
+    double *u, *v; 
+    double *entradasCamadaOculta[SIZE];
+
+    for(int i = 0; i < SIZE; i++){
+        *u += (entrada[i] * /*pesos[i]*/);
+        *v = tanH(*u);
+        entradasCamadaOculta[i] = *v;    
+    }
+
+    return entradasCamadaOculta;
+}
+
+double *propagacaoCamadaN(double *u){
+    
+    double *w; 
+
+    for(int i = 1; i < SIZE; i++){
+        *w += entrada[i];
+    }
+    return w;
 }
