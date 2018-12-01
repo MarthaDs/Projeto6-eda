@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include "rede_neural.hpp"
 #define NUMBER_DIRECTIONS 9
 #define MAX_ELEMENT 256
 #define TREINA_TESTE 25
@@ -15,6 +16,7 @@
 
 int GLCM [NUMBER_DIRECTIONS][MAX_ELEMENT][MAX_ELEMENT];
 double arrayDeMetricas[TREINA_TESTE][CONCATENA];
+void normalizaVetor(int k, double *concatenaFM, Header *header, int qntd_neuronio_oculta);
 
 int * randomizar(int );
 char* concat( char *, char *, char *);
@@ -34,15 +36,11 @@ double calculoHomogenidade(int , int );
 void metricasGLCM( double * ,int );
 void printMatriz(int , int );
 void concatenaVetor(double *, int * , double *);
-void normalizaVetor(int, double *);
 void mediaAsfalto(double *);
 int *euclidiana (int , double *, double *);
 void limpar ( );
 
 int main (int argc, char *argv[]){
-	char *qntd_terminal = argv[1];
-	int qntd_neuronio_oculta = atoi(qntd_terminal);
-	printf("Qnd de neuronio na camada oculta: %d\n",qntd_neuronio_oculta);
 
 	int n = 50;
 	int *array;
@@ -62,6 +60,11 @@ int main (int argc, char *argv[]){
 	int Acerto=0;
 	int falsaAceitacao = 0;
 	int falsaRejeicao = 0;
+
+	char *qntd_terminal = argv[1];
+	int qntd_neuronio_oculta = atoi(qntd_terminal);
+    Header *header = inicializaHeader();
+    printf("Qnd de neuronio na camada oculta: %d\n",qntd_neuronio_oculta);
 
 
 	for (int i = 0; i <n; i++){
@@ -104,7 +107,7 @@ int main (int argc, char *argv[]){
 		maior = calculaMax(matriz,linhas,colunas);
 		metricasGLCM(metricaGLCM, maior);
 		concatenaVetor(concatenaFM, arrayilbp, metricaGLCM);
-		normalizaVetor(j, concatenaFM);
+		normalizaVetor(j, concatenaFM,header,qntd_neuronio_oculta);
 		free(matriz);
 		free(arrayilbp);
 		free(metricaGLCM);
@@ -128,7 +131,7 @@ int main (int argc, char *argv[]){
 		maior = calculaMax(matriz,linhas,colunas);
 		metricasGLCM(metricaGLCM, maior);
 		concatenaVetor(concatenaFM, arrayilbp, metricaGLCM);
-		normalizaVetor(j, concatenaFM);
+		normalizaVetor(j, concatenaFM,header,qntd_neuronio_oculta);
 		free(matriz);
 		free(arrayilbp);
 		free(metricaGLCM);
@@ -138,7 +141,7 @@ int main (int argc, char *argv[]){
 	limpar();
 	//impar(arrayilbp, metricaGLCM, concatenaFM, linhas, colunas);
 
-	for (int j = 0; j < 25; j++){
+/* 	for (int j = 0; j < 25; j++){
 		matriz = matrizAlocacada(teste_asfalto[j], linhas, colunas);
 		int * arrayilbp = (int *) calloc (512, sizeof (int));
 		double *metricaGLCM = ( double *) calloc(24, sizeof( double));
@@ -152,7 +155,7 @@ int main (int argc, char *argv[]){
 		maior = calculaMax(matriz,linhas,colunas);
 		metricasGLCM(metricaGLCM, maior);
 		concatenaVetor(concatenaFM, arrayilbp, metricaGLCM);
-		normalizaVetor(0, concatenaFM);
+		normalizaVetor(0, concatenaFM,header,qntd_neuronio_oculta);
 		asfalto_grama = euclidiana (0, arrayDeMediaAsfalto, arrayDeMediaGrama);
 
 		if (asfalto_grama[0] == 1){
@@ -184,7 +187,7 @@ int main (int argc, char *argv[]){
 		maior = calculaMax(matriz,linhas,colunas);
 		metricasGLCM(metricaGLCM, maior);
 		concatenaVetor(concatenaFM, arrayilbp, metricaGLCM);
-		normalizaVetor(0, concatenaFM);
+		normalizaVetor(0, concatenaFM,header,qntd_neuronio_oculta);
 		asfalto_grama = euclidiana (0, arrayDeMediaAsfalto, arrayDeMediaGrama);
 
 		if (asfalto_grama[0] == 1){
@@ -200,11 +203,11 @@ int main (int argc, char *argv[]){
 	}
 	Acerto = (100*Acerto)/50;
 	falsaAceitacao = (100*falsaAceitacao)/25;
-	falsaRejeicao= (100*falsaRejeicao)/25;
+	falsaRejeicao= (100*falsaRejeicao)/25; */
 
-	printf("A taxa de acerto foi de %d porcento\n", Acerto);
+/* 	printf("A taxa de acerto foi de %d porcento\n", Acerto);
 	printf("A taxa de falsa aceitacao foi de %d porcento\n", falsaAceitacao);
-	printf("A taxa de falsa rejeicao foi de %d porcento\n", falsaRejeicao);
+	printf("A taxa de falsa rejeicao foi de %d porcento\n", falsaRejeicao); */
 
 	free(array);
 	free(concatenaFM);
@@ -518,7 +521,6 @@ void metricasGLCM(double * metricaGLCM,int maior){
 		}
 
 	}
-
 }
 
 void concatenaVetor(double *concatenaFM, int *array1, double *array2){
@@ -532,7 +534,7 @@ void concatenaVetor(double *concatenaFM, int *array1, double *array2){
 		}
 	}
 }
-void normalizaVetor(int k, double *concatenaFM) {
+void normalizaVetor(int k, double *concatenaFM, Header *header, int qntd_neuronio_oculta) {
 	int max = 0, min = 0;
 
 	double *vetorNormalizado = (double *) calloc (536, sizeof(double));
@@ -550,6 +552,9 @@ void normalizaVetor(int k, double *concatenaFM) {
 		arrayDeMetricas[k][j] = vetorNormalizado[j];
 		//printf("array de metrica %d: %.10lf\n",k, arrayDeMetricas[k][j]);
 	}
+	printf("Cria camada oculta\n");
+	camadaOculta(header,qntd_neuronio_oculta, vetorNormalizado);
+	printf("Peso atualizado\n");
 }
 
 void mediaAsfalto(double *arrayMedia){

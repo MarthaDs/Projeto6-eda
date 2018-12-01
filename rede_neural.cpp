@@ -1,43 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "rede_neural.hpp"
+#include <time.h>
 
-typedef struct neuronio {
-    double entrada[536];
-    double peso_b;
-    double pesos_w[536];
-    double saida;
-    struct neuronio *prox;
-}Neuronio;
-
-typedef struct header {
-    int qntd_elemetos;
-    Neuronio * head;
-    Neuronio *tail;
-} Header;
-
-Header *inicializaHeader();
-double randPeso();
-Neuronio *criaNeuronio(double entrada[536]);
-void pesosW(Neuronio *novoNeuronio);
-void entradaNeuronio(Neuronio* neuronio, double entrada[536]);
-double funcaoAtivacao(Neuronio* neuronio);
-void addNeuronioCamadaOculta(Header *header, double entrada[536]);
-void camadaOculta(Header *header, int qntd_neuronio_oculta, double entrada[536]);
-double *calculaSaida(Header *header);
-
-int main (int argc, char *argv[]) {
-	char *qntd_terminal = argv[1];
-	int qntd_neuronio_oculta = atoi(qntd_terminal);
-    Header *header = inicializaHeader();
-    double entrada[536] = {0.0};
-
-    printf("Qnd de neuronio na camada oculta: %d\n",qntd_neuronio_oculta);
-    camadaOculta(header,qntd_neuronio_oculta, entrada);
-
-
-    return 0;
-}
+int atualizaPeso = 0;
 
 Header *inicializaHeader() {
 	Header *header = (Header*) malloc(sizeof(Header));
@@ -50,8 +17,8 @@ Header *inicializaHeader() {
 Neuronio *criaNeuronio(double entrada[536]) {
     Neuronio *novoNeuronio = (Neuronio*) malloc(sizeof(Neuronio));
 
-    novoNeuronio->peso_b = randPeso();
-    pesosW(novoNeuronio);
+    novoNeuronio->peso_b = 0;
+    novoNeuronio->pesos_w[536] = {1};
     entradaNeuronio(novoNeuronio, entrada);
     novoNeuronio->saida = 0;
 
@@ -76,24 +43,39 @@ double funcaoAtivacao(Neuronio *neuronio) {
 }
 
 double randPeso() {
+    srand(time(0));
     double p = 0;
 
-    p = rand()%9999+1;
-
-    p /= 10000;
+    p = (rand() % 32000 - 16000);
     return p;
 }
 
-void pesosW(Neuronio *novoNeuronio) {
+void pesosW(Neuronio *novoNeuronio, double pesos[536]) {
     for(int i = 0; i < 536; i++) {
-        novoNeuronio->pesos_w[i] = randPeso();
+        novoNeuronio->pesos_w[i] = pesos[i];
+    }
+}
+
+void calculaPesosRand(Neuronio* neuronio) {
+    double pesosW_rand[536];
+
+    for(int i = 0; i < 536; i++) {
+        neuronio->pesos_w[i] = randPeso();    
     }
 }
 
 void entradaNeuronio(Neuronio* neuronio, double entrada[536]) {
-    for(int i = 0; i < 536; i++) {
+    if(atualizaPeso == 0) {
+        calculaPesosRand(neuronio);
+        neuronio->peso_b = randPeso();
+        printf("Primeiros pesos gerados randomicamente\n");
+    }
+    else{
+        printf("Pesos atualizados atraves do calculo de erro\n");
+        for(int i = 0; i < 536; i++) {
         neuronio->entrada[i] = (entrada[i] * neuronio->pesos_w[i])
             + neuronio->peso_b;
+        }
     }
 }
 
@@ -108,16 +90,17 @@ void addNeuronioCamadaOculta(Header *header, double entrada[536]) {
             header->tail = header->tail->prox;
             header->qntd_elemetos++;
         }
+        printf("add neuronio \n");
+
 }
 
 void camadaOculta(Header *header, int qntd_neuronio_oculta, double entrada[536]) {
-    for(int i = 0;i <= qntd_neuronio_oculta; i++) {
+    for(int i = 0;i < qntd_neuronio_oculta; i++) {
         addNeuronioCamadaOculta(header, entrada);
     }
-}
-
-int camadaSaida(Header *header, double entrada[536]) {
-     
+    atualizaPeso = 1;
+    printf("camada oculta criada\n");
+    printf("erro será calculado\n");
 }
 
 double *calculaSaida(Header *header) {
