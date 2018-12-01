@@ -120,3 +120,9 @@ void criaCamadaSaida(Header *header) {
     Neuronio *neuronioSaida = criaNeuronio(calculaSaida(header)); 
     neuronioSaida->saida = funcaoAtivacao(neuronioSaida);
 }
+
+void atualizacaoSin(){
+	
+	double tal, v, delta;
+	delta = (2 * 0,1 * v * tal);
+}
