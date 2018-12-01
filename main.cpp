@@ -108,6 +108,7 @@ int main (int argc, char *argv[]){
 		metricasGLCM(metricaGLCM, maior);
 		concatenaVetor(concatenaFM, arrayilbp, metricaGLCM);
 		normalizaVetor(j, concatenaFM,header,qntd_neuronio_oculta);
+		criaCamadaSaida(header);
 		free(matriz);
 		free(arrayilbp);
 		free(metricaGLCM);

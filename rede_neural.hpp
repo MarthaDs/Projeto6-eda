@@ -27,5 +27,11 @@ double funcaoAtivacao(Neuronio* neuronio);
 void addNeuronioCamadaOculta(Header *header, double entrada[536]);
 void camadaOculta(Header *header, int qntd_neuronio_oculta, double entrada[536]);
 double *calculaSaida(Header *header);
+void criaCamadaSaida(Header *header);
+void iniciaPesosW(Neuronio *neuronio);
 void calculaPesosRand(Neuronio* neuronio);
+void backPropagation(Header *header, int erro_esperado, int qntd_neuronio_oculta);
+double atualizaSinapses(double delta, double erro);
+double calculaErroCamada(Neuronio *neuronio);
+double tangenteHiperbolica(double erro);
 #endif
